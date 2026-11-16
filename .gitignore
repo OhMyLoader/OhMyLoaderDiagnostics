@@ -1,0 +1,7 @@
+/target
+
+# analyzed inputs and command outputs
+*.hprof
+*.dmp
+/shots/
+/handles.csv
