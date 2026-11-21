@@ -3,7 +3,6 @@
 //! (`java ReflectProbe.java`, JDK 11+) with stdio passed straight through.
 //!
 //! It has to live in a JVM: it reflects the JDK's own internal fields, which Rust has no equivalent of.
-//! `hprof-soft` used to need the same escape hatch and is now pure Rust (see `hprof/soft.rs`).
 
 /// ReflectProbe: JDK-internal fields at run time (`reflect-probe`).
 const REFLECT_PROBE: &str = include_str!("../tools/ReflectProbe.java");

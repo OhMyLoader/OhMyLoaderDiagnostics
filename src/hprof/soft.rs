@@ -1,6 +1,6 @@
 //! `hprof-soft`: shortest strong-reference path from the GC roots to instances of one named class. Its
-//! output is byte-identical to the tool it replaces, verified by diff on a real 418MB dump across the
-//! `default`, `not-found`, and `inspect` paths.
+//! cross-check is reachability agreement with the main `hprof` walk: keep the output byte-identical on
+//! at least one real dump when anything here changes.
 //!
 //! It is deliberately **not** built on the main `hprof` BFS, because the graph semantics differ:
 //!   - class-node edges include `protectionDomain` and carry no constant-pool references;
@@ -12,8 +12,7 @@
 //! Two implementations that disagree are a bug hunt; two that agree are evidence, which is the point of
 //! keeping them apart.
 //!
-//! To reproduce the original output order, `JavaMap` reimplements `java.util.HashMap` iteration order for
-//! the put-only case: tail insertion, resize at 0.75 load, and the split-into-lo/hi-chains rehash that
+//! To reproduce `java.util.HashMap` iteration order, `JavaMap` reimplements it for the put-only case: tail insertion, resize at 0.75 load, and the split-into-lo/hi-chains rehash that
 //! preserves each chain's order. Treeified buckets do not change the `next`-chain iteration order, so no
 //! red-black tree is needed.
 
@@ -717,8 +716,8 @@ impl Soft {
         }
     }
 
-    /// Fills `out` and `out_code` and returns the edge count. `code` is the reference ordinal the original
-    /// implementation used, which the output order depends on.
+    /// Fills `out` and `out_code` and returns the edge count. `code` is the reference ordinal, which the
+    /// output order depends on.
     fn expand(&mut self, i: usize, out: &mut [i32], out_code: &mut [i32]) -> usize {
         let b = self.b;
         let mut n = 0usize;

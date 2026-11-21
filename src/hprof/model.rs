@@ -71,7 +71,7 @@ pub(crate) struct ClassMeta {
     pub(crate) name: String,
     pub(crate) super_id: u64,
     pub(crate) loader_id: u64,
-    /// (name string id, value). A zero value is a non-object static, already skipped during parsing.
+    /// (name string id, value). Non-object statics are skipped at parse time; a zero value is a null object reference.
     pub(crate) statics: Vec<(u64, u64)>,
     /// (name string id, basic type)
     pub(crate) fields: Vec<(u64, u8)>,

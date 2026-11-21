@@ -38,6 +38,8 @@ pub(crate) fn enumerate(match_pids: Option<&BTreeSet<u32>>) -> Vec<WinInfo> {
     }
     unsafe extern "system" fn cb(h: HWND, lparam: LPARAM) -> BOOL {
         // Edition 2024 removes the implicit unsafe body of an unsafe fn, so the block is written out.
+        // lparam carries the address of the Ctx built at the EnumWindows call site, which outlives this
+        // synchronous callback.
         unsafe {
             let ctx = &mut *(lparam.0 as *mut Ctx);
             let mut pid = 0u32;
