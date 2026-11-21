@@ -11,6 +11,8 @@ mod, and it must stay buildable alone with `cargo`.
 - Read the "Output stability" section below first. Most of what makes a change here acceptable is in it.
 - Do not add a dependency on any OhMyLoader artifact, source path, or Maven coordinate. The loader is one
   of the reasons the tool exists, not part of its build.
+- The dependency set is deliberate: `memmap2` plus the `windows` crate on Windows targets. Do not add a
+  crate to save a few lines.
 - Do not commit analyzed data: heap dumps, minidumps, `shots/`, `handles.csv`, and captured reports stay
   out of the repository.
 
@@ -59,9 +61,8 @@ diff before.txt after.txt
   did not change, and delete the generated files afterwards.
 - Anything touching parallelism: run once with `OML_DIAG_THREADS=1` and once with the default, and require
   stdout to match byte for byte.
-- `cargo clippy --all-targets` is not clean at the current baseline. Do not add new warnings; do not
-  include a warning sweep in a behavioral commit.
-- `cargo fmt` is likewise not applied repo-wide. Format only what you touch, or make it its own commit.
+- Do not add new `cargo clippy --all-targets` warnings, and do not include a clippy or `cargo fmt` sweep
+  in a behavioral commit; format only what you touch, or make the pass its own commit.
 
 Include the commands and their measured output in the pull request. "It compiles" is not evidence for a
 parser or a graph change.
@@ -84,9 +85,8 @@ These are the rules that protect the tool's usefulness:
   cross-check, so it is not a refactor that is wanted.
 - Parsed input is mapped and never unmapped. Do not add a copy of the file, and do not add a `Drop`-based
   unmap: the `'static` slice is what the analysis code is written against.
-- A malformed or truncated dump currently surfaces as an index panic, and `panic = "abort"` means no output
-  is flushed. Fix such a case by returning `Err` from the parser; do not add a catch or a default value that
-  hides it.
+- A malformed or truncated dump must surface as an `Err` from the parser — never an index panic and never a
+  fallback value. `panic = "abort"` means a panic flushes no output at all.
 - Binary-format constants keep their cited field: a PEB or `CONTEXT` offset, an HPROF tag, a `SYSTEMTIME`
   layout gets the name and the format it comes from rather than a bare number at the call site.
 
@@ -120,17 +120,14 @@ These are the rules that protect the tool's usefulness:
 
 ## Security
 
-Do not report a vulnerability in a public issue. Use GitHub's private vulnerability reporting for this
-repository; include the affected commit, the input shape, and the impact. If private reporting is
-unavailable, contact the maintainer through GitHub before public disclosure.
+Report vulnerabilities privately; the organization-wide policy lives in the
+[`.github` repository](https://github.com/OhMyLoader/.github/blob/main/SECURITY.md) and applies here.
 
 A heap dump, a minidump, and a live process's memory are all untrusted inputs to this tool. A malformed
-file that aborts the process, or a read that runs past a mapped region, is a defect worth fixing rather than
-a crash to dismiss — but do not report it publicly, because a crafted dump is a real attack surface for
-anyone who runs the tool on files from elsewhere.
+file that aborts the process, or a read that runs past a mapped region, is a defect worth fixing — a
+crafted dump is a real attack surface for anyone who runs the tool on files from elsewhere. Do not open
+a public issue for it.
 
 ## License
 
-The project is licensed under AGPL-3.0-or-later. By submitting a contribution, you confirm that you have
-the right to license it under AGPL-3.0-or-later. No CLA or `Signed-off-by` is required. Do not submit code
-with an incompatible license.
+The project is licensed under AGPL-3.0-or-later.
